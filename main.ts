@@ -1,3 +1,11 @@
+// Tiny stack VM: exact re-implementation of the kit reference VM.
+// One step, in order: step limit (exit 10) -> pc bounds (9) -> unknown
+// opcode (5) -> truncated immediate (9) -> stack underflow (2) /
+// overflow (3) -> execute. Traps: 0 halt, 2 underflow, 3 overflow,
+// 4 div/mod by zero, 5 bad opcode, 6 bad address, 7 call overflow,
+// 8 return with empty call stack, 9 pc out of range, 10 step limit,
+// 11 output limit. 32-bit wrapping ints; DIV/MOD trap on zero and
+// wrap INT_MIN/-1; shifts mask the count to 5 bits.
 import{mkdirSync,readdirSync,readFileSync,writeFileSync}from'node:fs';
 import{join}from'node:path';
 const I=process.env.MAKEFUN_INPUT_DIR??'/input',O=process.env.MAKEFUN_OUTPUT_DIR??'/output',E=new TextEncoder;
@@ -9,7 +17,7 @@ function run(p,q){
   if(t===1e6)return end(10);
   if(x<0||x>=n)return end(9);
   const b=p[x];
-  if(!(b<8||b>15&&b<35||b>47&&b<53||b==64||b==65||b>79&&b<84))return end(5);
+  if(b>83||b>65&&b<80||b>52&&b<64||b>34&&b<48||b>7&&b<16)return end(5);
   const m=b==1?1:b==2?4:b>47&&b<52?2:0;
   if(x+m>=n)return end(9);
   t++;const y=x+1+m;x=y;
